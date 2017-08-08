@@ -1,0 +1,21 @@
+# default
+app_identifier "" # The bundle identifier of your app
+apple_id "" # Your Apple email address
+team_id "" # Developer Portal Team ID
+
+# for other target 
+for_lane :enterprise do
+    app_identifier ""
+    apple_id ""
+    team_id "" # Developer Portal Team ID
+end
+
+for_lane :adhoc do
+    app_identifier "" # The bundle identifier of your app
+    apple_id "" # Your Apple email address
+    team_id "" # Developer Portal Team ID
+end
+
+# you can even provide different app identifiers, Apple IDs and team names per lane:
+# More information: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Appfile.md
+

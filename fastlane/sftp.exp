@@ -1,0 +1,25 @@
+#! /usr/bin/expect -f
+proc usage {} {
+    puts "usage: sftp.exp {PROJECT} {version number} {ipa location} {manifest.plist location}"
+}
+
+if {$argc < 4} {
+    usage
+    exit
+}
+
+set PROJECT "[lindex $argv 0]"
+set VERSION "[lindex $argv 1]"
+set IPA "[lindex $argv 2]"
+set MANIFEST "[lindex $argv 3]"
+
+spawn sftp -i certificates/aws_dev109.pem ubuntu@[server_ip]
+expect "sftp>"
+send "cd $PROJECT/$VERSION\n"
+expect "sftp>"
+send "put $IPA\n"
+expect "sftp>"
+send "put $MANIFEST\n"
+expect "sftp>"
+send "exit\n"
+interact

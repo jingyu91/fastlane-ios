@@ -1,0 +1,190 @@
+# Customise this file, documentation can be found here:
+# https://github.com/fastlane/fastlane/tree/master/fastlane/docs
+# All available actions: https://docs.fastlane.tools/actions
+# can also be listed using the `fastlane actions` command
+
+# Change the syntax highlighting to Ruby
+# All lines starting with a # are ignored when running `fastlane`
+
+# If you want to automatically update fastlane if a new version is available:
+# update_fastlane
+
+# This is the minimum version number required.
+# Update this, if you use features of a newer version
+fastlane_version "2.41.0"
+ 
+default_platform :ios
+
+### iOS Platform Setting ###
+platform :ios do
+
+  #################################################################### 
+  #define slack message function
+    def notify_to_slack(message, success='true', channel='#test')
+    slack(
+      message: message,
+      success: success,
+      channel: channel
+    )
+    end
+
+  #################################################################### 
+  before_all do
+
+    cocoapods
+  end
+
+  #################################################################### 
+  #  make enterprise ipa, adhoc ipa and upload App
+  #################################################################### 
+  lane :all do
+    sh "fastlane release"
+    sh "fastlane adhoc"
+    sh "fastlane enterprise"
+  end
+
+
+  #################################################################### 
+  #  Upload App For Release
+  #################################################################### 
+  desc "Deploy a new version to the App Store"
+  lane :release do
+
+    version_number = get_info_plist_value(path: "PROJECT/Info.plist", key: "CFBundleShortVersionString")
+    build_number = get_info_plist_value(path: "PROJECT/-Info.plist", key: "CFBundleVersion")
+    version = "#{version_number}_#{build_number}"
+
+    gym(
+        scheme: ENV['RELEASE_TARGET'],
+        include_bitcode: false,
+        include_symbols: false,
+        output_name: "release.ipa",
+	output_directory: "fastlane/ipa"
+    )
+
+    deliver(
+	skip_screenshots: true,
+	skip_metadata: true,
+        force: true 
+    )
+
+    add_git_tag(
+      tag: "v#{version}"
+    )
+    
+    push_git_tags
+
+    message = "Successfully deployed new App Update. ver - #{version}"
+    notify_to_slack(message)
+
+    clean_build_artifacts #ipa, dsym삭제
+  end
+
+
+  #################################################################### 
+  #  Make Ad-Hoc ipa
+  #################################################################### 
+  desc "Ad-Hoc Build"
+  lane :adhoc do
+    version_number = get_info_plist_value(path: "PROJECT/Info.plist", key: "CFBundleShortVersionString")
+    build_number = get_info_plist_value(path: "PROJECT/Info.plist", key: "CFBundleVersion")
+    version = "#{version_number}(#{build_number})"
+    badge(shield: "Adhoc-#{version}-blue", no_badge: true)
+    ipa_name = "#{ENV['ADHOC_TARGET']}_adhoc.ipa"
+
+    gym(
+        scheme: ENV['ADHOC_TARGET'], 
+        include_bitcode: false, 
+        include_symbols: false,
+        export_method: "ad-hoc",
+	output_name: "#{ipa_name}",
+	output_directory: "fastlane/ipa",
+	export_options: {
+		method: "ad-hoc",
+		manifest: {
+			appURL: "",
+			displayImageURL: "",
+			fullSizeImageURL: ""
+		}
+	}
+    )
+    
+    # remove badge icon
+    remove_badge = ENV['BADGE_REMOVE_COMMIT']
+    sh "git checkout -- \"#{remove_badge}\""
+
+    project_name = ENV['PROJECT'] 
+
+    # server connect & create directory
+    location = "#{project_name}/#{version_number}/#{build_number}"
+#    sh "ssh -i certificates/aws_dev109.pem ubuntu@52.78.233.4 'mkdir -p \"#{project_name}\"/\"#{version_number}\"/\"#{build_number}"'"
+
+    # ipa upload
+#    sh "./sftp.exp \"#{project_name}\" \"#{version_number}\" ./ipa/\"#{ipa_name}\" ./ipa/manifest.plist"
+
+    # remove generated files
+#    clean_build_artifacts 
+
+    message = "Successfully deployed adhoc. ver - #{version}"
+    notify_to_slack(message)
+  end
+  
+
+  #################################################################### 
+  #  Make Enterprise ipa
+  #################################################################### 
+  desc "Enterprise Build"
+  lane :enterprise do
+    #increment_build_number
+    version_number = get_info_plist_value(path: "PROJECT/Info.plist", key: "CFBundleShortVersionString")
+    build_number = get_info_plist_value(path: "PROJECT/Info.plist", key: "CFBundleVersion")
+    version = "#{version_number}(#{build_number})"
+    badge(shield: "Enter-#{version}-orange", no_badge: true)
+    ipa_name = "#{ENV['ENTERPRISE_TARGET']}_enterprise.ipa"
+
+    gym(
+        scheme: ENV['ENTERPRISE_TARGET'], 
+        include_bitcode: false,
+        include_symbols: false,
+	output_name: "#{ipa_name}",
+        export_method: "enterprise",
+	output_directory: "fastlane/ipa"
+	export_options: {
+		method: "enterprise",
+		manifest: {
+			appURL: "",
+			displayImageURL: "",
+			fullSizeImageURL: ""
+		}
+	}
+    )
+
+    # remove badge icon
+    remove_badge = ENV['BADGE_REMOVE_COMMIT']
+    sh "git checkout -- \"#{remove_badge}\""
+
+    message = "Successfully deployed enterprise. ver - #{version}"
+    notify_to_slack(message)
+  end
+
+  #################################################################### 
+  after_all do |lane|
+    # This block is called, only if the executed lane was successful
+  end
+
+
+  #################################################################### 
+  error do |lane, exception|
+    notify_to_slack(exception.message, "false")
+  end
+
+
+  #################################################################### 
+end
+
+# More information about multiple platforms in fastlane: https://github.com/fastlane/fastlane/blob/master/fastlane/docs/Platforms.md
+# All available actions: https://docs.fastlane.tools/actions
+
+# fastlane reports which actions are used. No personal data is recorded. 
+# Learn more at https://github.com/fastlane/fastlane#metrics
+
