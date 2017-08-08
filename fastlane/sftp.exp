@@ -13,7 +13,7 @@ set VERSION "[lindex $argv 1]"
 set IPA "[lindex $argv 2]"
 set MANIFEST "[lindex $argv 3]"
 
-spawn sftp -i certificates/aws_dev109.pem ubuntu@[server_ip]
+spawn sftp -i certificates/your.pem ubuntu@[server_ip]
 expect "sftp>"
 send "cd $PROJECT/$VERSION\n"
 expect "sftp>"
