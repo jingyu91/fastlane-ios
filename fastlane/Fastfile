@@ -18,7 +18,7 @@ default_platform :ios
 ### iOS Platform Setting ###
 platform :ios do
 
-  #################################################################### 
+  ####################################################################
   #define slack message function
     def notify_to_slack(message, success='true', channel='#test')
     slack(
@@ -50,8 +50,8 @@ platform :ios do
   desc "Deploy a new version to the App Store"
   lane :release do
 
-    version_number = get_info_plist_value(path: "PROJECT/Info.plist", key: "CFBundleShortVersionString")
-    build_number = get_info_plist_value(path: "PROJECT/-Info.plist", key: "CFBundleVersion")
+    version_number = get_info_plist_value(path: "#{ENV['RELEASE_PLIST']}", key: "CFBundleShortVersionString")
+        build_number = get_info_plist_value(path: "#{ENV['RELEASE_PLIST']}", key: "CFBundleVersion")
     version = "#{version_number}_#{build_number}"
 
     gym(
@@ -117,7 +117,7 @@ platform :ios do
 
     # server connect & create directory
     location = "#{project_name}/#{version_number}/#{build_number}"
-#    sh "ssh -i certificates/aws_dev109.pem ubuntu@52.78.233.4 'mkdir -p \"#{project_name}\"/\"#{version_number}\"/\"#{build_number}"'"
+#    sh "ssh -i certificates/aws_dev109.pem ubuntu@server_ip 'mkdir -p \"#{project_name}\"/\"#{version_number}\"/\"#{build_number}"'"
 
     # ipa upload
 #    sh "./sftp.exp \"#{project_name}\" \"#{version_number}\" ./ipa/\"#{ipa_name}\" ./ipa/manifest.plist"
