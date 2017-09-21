@@ -176,6 +176,10 @@ platform :ios do
   #################################################################### 
   error do |lane, exception|
     notify_to_slack(exception.message, "false")
+
+    # remove badge icon
+    remove_badge = ENV['BADGE_REMOVE_COMMIT']
+    sh "git checkout -- \"#{remove_badge}\""
   end
 
 
