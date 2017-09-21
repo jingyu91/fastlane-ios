@@ -15,17 +15,8 @@ fastlane을 사용하면 이러한 문제도 해결할 수 있고, 추가적으�
 - Appfile
 - .env
 - Fastfile
-
 - Action
-
 - Plugin
-
-- build multiple targets with a single command
-- get version string
-- slack message
-- appicon with badge
-- upload ipa and plist to the server
-
 
 ##fastlane 설치
 
@@ -89,8 +80,8 @@ Fastfile은 lane시작 전에 수행할 코드를 넣는 before_all do ~ end과 
 
 after_all do ~ end과 error do ~ end로 구성할 수 있다.
 
-보통 before_all에 인증서 관련한 명령과 pod install수행 구문들을 넣어주고 after_all이나 error 에 슬랙 메시지, git관련 명령
-들을 수행하면 된다.
+before_all에 인증서 관련한 명령과 pod install수행 구문들을 넣어주고 after_all이나 error 에 슬랙 메시지, git관련 명령
+들을 수행하면 좋은 것 같다.
 
 
 ## Action
@@ -99,15 +90,20 @@ https://docs.fastlane.tools/actions/
 
 
 ## Plugin
-플러그인은 부가적인 option이며 fastlane에서 자체적으로 제공하는것이 아니라 오픈소스 컨트리뷰터들이 만들어서 제공하는 기능이다.
+플러그인은 부가적인 option이며 fastlane에서 자체적으로 제공하는것이 아니라 사용자들이 만들어서 제공하는 기능이다.
 
 사용하려면 'fastlane add_plugin [plugin명]' 으로 따로 설치해야한다.
 
 fastlane은 루비로 되어있어서 루비를 잘 다룬다면 plugin을 만들어 쓸 수 있을 것 같다.
 
 즐겨쓰는 plugin으로는 badge 인데 앱 아이콘이 비슷해서 헷갈리지 않아서 유용하다.
-https://github.com/HazAT/fastlane-plugin-badge
 
+이미지를 수정하는 툴인 imagemagick가 필요하므로 설치한다.
+
+`$ brew install ghostscript imagemagick`
+
+https://github.com/HazAT/fastlane-plugin-badge
+https://github.com/HazAT/badge
 ```
 fastlane add_plugin badge
 ```
@@ -117,27 +113,24 @@ fastlane add_plugin badge
 ## 빌드실행
 
 설정이 끝나고 터미널에서 `fastlane [lane명]` 을 입력하면 빌드가 된다. 
-#### ios all
+
 make enterprise ipa, adhoc ipa and upload App
 ```
 fastlane ios all
 ```
 
-#### ios release
 Deploy a new version to the App Store
 
 ```
 fastlane ios release
 ```
 
-#### ios adhoc
 Ad-Hoc Build
 ```
 fastlane ios adhoc
 ```
 
 
-#### ios enterprise
 Enterprise Build
 ```
 fastlane ios enterprise
