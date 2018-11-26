@@ -18,7 +18,7 @@ fastlane을 사용하면 이러한 문제도 해결할 수 있고, 추가적으�
 - Action
 - Plugin
 
-##fastlane 설치
+## fastlane 설치
 
 1. 터미널에서 다음 명령어를 입력한다.
 
@@ -35,7 +35,7 @@ Appfile에서 애플 개발자 계정을 설정하고 Fastfile로 빌드할 lane
 .env파일은 전역변수를 설정하여 Fastfile에서 편리하게 사용할 수 있다.
 
  
-##파일 설정
+## 파일 설정
 
 **Appfile**
 
